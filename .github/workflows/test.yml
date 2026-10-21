@@ -1,0 +1,19 @@
+name: Formula
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Register local tap checkout
+        run: |
+          mkdir -p "$(brew --repository)/Library/Taps/jietexue"
+          ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/jietexue/homebrew-tap"
+      - run: brew audit --strict JieteXue/tap/cdt
+      - run: brew install --build-from-source JieteXue/tap/cdt
+      - run: brew test JieteXue/tap/cdt
