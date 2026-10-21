@@ -5,14 +5,12 @@ class Cdt < Formula
 
   depends_on :macos
 
-  on_arm do
-    url "https://github.com/JieteXue/cdt/releases/download/v0.4.1/cdt_0.4.1_darwin_arm64.tar.gz"
-    sha256 "4ecbebfdc622f170ad2c9d3dcafd1f6a456c4b439fcfc9b6ee8e0637264deec8"
-  end
-
-  on_intel do
-    url "https://github.com/JieteXue/cdt/releases/download/v0.4.1/cdt_0.4.1_darwin_amd64.tar.gz"
-    sha256 "c5910e11c9656167aa07178d4a3405eab76f5a757ad271ad3c71e3a678ccee2c"
+  if Hardware::CPU.arm?
+    url "https://github.com/JieteXue/cdt/releases/download/v0.5.0/cdt_0.5.0_darwin_arm64.tar.gz"
+    sha256 "207cb185fddd25557b6c2950d040406e1d04a15d5a9a13c61a3ed9841b4be3f1"
+  else
+    url "https://github.com/JieteXue/cdt/releases/download/v0.5.0/cdt_0.5.0_darwin_amd64.tar.gz"
+    sha256 "fbc138a2049b9476e18afdaa1dabbc041498eb5852c6d06abc4004411927138f"
   end
 
   def install
@@ -49,7 +47,23 @@ class Cdt < Formula
     system bin/"cdt", "-ap", child, "api"
     assert_match "\u2514\u2500\u2500 api  [api]", shell_output("#{bin}/cdt -l")
     assert_match "#{child.realpath}  [api]", shell_output("#{bin}/cdt -l work api")
-    system bin/"cdt", "-dp", child
+    assert_match "DIRECTORIES", shell_output("#{bin}/cdt --tags")
+    assert_match "Inherited: work <- ", shell_output("#{bin}/cdt --explain work api")
+    registry = testpath/"config/cdt/registry.json"
+    snapshot = registry.read
+    assert_match "registry unchanged", shell_output("#{bin}/cdt --rename-tag api service --dry-run")
+    assert_equal snapshot, registry.read
+    system bin/"cdt", "--rename-tag", "api", "service"
+    assert_match "#{child.realpath}  [service]", shell_output("#{bin}/cdt -l work service")
+    moved = project/"service"
+    child.rename(moved)
+    snapshot = registry.read
+    preview = shell_output("#{bin}/cdt --move #{child.to_s.shellescape} #{moved.to_s.shellescape} --dry-run")
+    assert_match "registry unchanged", preview
+    assert_equal snapshot, registry.read
+    system bin/"cdt", "--move", child, moved
+    assert_match "#{moved.realpath}  [service]", shell_output("#{bin}/cdt -l work service")
+    system bin/"cdt", "-dp", moved
     system "/bin/zsh", "-fc",
            'eval "$(command cdt init zsh)"; cdt work; [[ "$PWD" == "$CDT_TEST_PATH" ]]'
     editor = testpath/"editor.rb"
