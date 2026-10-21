@@ -1,8 +1,8 @@
 class Cdt < Formula
   desc "Directory tags and native zsh navigation"
   homepage "https://github.com/JieteXue/cdt"
-  url "https://github.com/JieteXue/cdt/archive/refs/tags/v0.2.0.tar.gz"
-  sha256 "6cba32f15a63cd5384e8286c40f258518472da39b3e0146d9489b8b2d25393b5"
+  url "https://github.com/JieteXue/cdt/archive/refs/tags/v0.3.0.tar.gz"
+  sha256 "fff99c0f1ceac3d5774d3592f1051ef3735156339d0ae445b8ed69aa5d361b85"
   license "MIT"
 
   depends_on "go" => :build
@@ -31,7 +31,17 @@ class Cdt < Formula
     ENV.prepend_path "PATH", bin
 
     system bin/"cdt", "-ap", project, "work"
+    repeated = shell_output("#{bin}/cdt -ap #{project.to_s.shellescape} work work")
+    assert_match "unchanged", repeated
+    assert_match "Already present (skipped): [work]", repeated
+    assert_match "Repeated input (ignored): [work]", repeated
     assert_match project.realpath.to_s, shell_output("#{bin}/cdt -l work")
+    child = project/"api"
+    child.mkpath
+    system bin/"cdt", "-ap", child, "api"
+    assert_match "\u2514\u2500\u2500 api  [api]", shell_output("#{bin}/cdt -l")
+    assert_match "#{child.realpath}  [api]", shell_output("#{bin}/cdt -l work api")
+    system bin/"cdt", "-dp", child
     system "/bin/zsh", "-fc",
            'eval "$(command cdt init zsh)"; cdt work; [[ "$PWD" == "$CDT_TEST_PATH" ]]'
     editor = testpath/"editor.rb"
