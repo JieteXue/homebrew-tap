@@ -1,8 +1,8 @@
 class Cdt < Formula
   desc "Directory tags and native zsh navigation"
   homepage "https://github.com/JieteXue/cdt"
-  url "https://github.com/JieteXue/cdt/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "935aabe9984478e7f91cba11f79b7c61743ca727ae3ea6ddee800a9ec36808ba"
+  url "https://github.com/JieteXue/cdt/archive/refs/tags/v0.2.0.tar.gz"
+  sha256 "6cba32f15a63cd5384e8286c40f258518472da39b3e0146d9489b8b2d25393b5"
   license "MIT"
 
   depends_on "go" => :build
@@ -34,6 +34,19 @@ class Cdt < Formula
     assert_match project.realpath.to_s, shell_output("#{bin}/cdt -l work")
     system "/bin/zsh", "-fc",
            'eval "$(command cdt init zsh)"; cdt work; [[ "$PWD" == "$CDT_TEST_PATH" ]]'
+    editor = testpath/"editor.rb"
+    editor.write <<~RUBY
+      require "json"
+      path = ARGV.fetch(0)
+      data = JSON.parse(File.read(path))
+      data.fetch("entries").first["tags"] = ["edited"]
+      File.write(path, JSON.generate(data))
+    RUBY
+    ENV["VISUAL"] = "#{RbConfig.ruby} #{editor}"
+    system bin/"cdt", "--edit"
+    assert_match "[edited]", shell_output("#{bin}/cdt -l edited")
+    system "/bin/zsh", "-fc",
+           'eval "$(command cdt init zsh)"; cdt edited; [[ "$PWD" == "$CDT_TEST_PATH" ]]'
     system bin/"cdt", "-dp", project
     assert_empty shell_output("#{bin}/cdt -l")
   end
