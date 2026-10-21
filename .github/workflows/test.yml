@@ -8,6 +8,7 @@ jobs:
       matrix:
         os: [macos-15, macos-15-intel]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Register local tap checkout
@@ -15,5 +16,8 @@ jobs:
           mkdir -p "$(brew --repository)/Library/Taps/jietexue"
           ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/jietexue/homebrew-tap"
       - run: brew audit --strict JieteXue/tap/cdt
-      - run: brew install --build-from-source JieteXue/tap/cdt
+      - name: Verify installation has no Go dependency
+        run: |
+          test -z "$(brew deps --include-build JieteXue/tap/cdt)"
+      - run: brew install JieteXue/tap/cdt
       - run: brew test JieteXue/tap/cdt

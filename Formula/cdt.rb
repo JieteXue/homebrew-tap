@@ -1,15 +1,23 @@
 class Cdt < Formula
   desc "Directory tags and native zsh navigation"
   homepage "https://github.com/JieteXue/cdt"
-  url "https://github.com/JieteXue/cdt/archive/refs/tags/v0.3.0.tar.gz"
-  sha256 "fff99c0f1ceac3d5774d3592f1051ef3735156339d0ae445b8ed69aa5d361b85"
+  version "0.3.1"
   license "MIT"
 
-  depends_on "go" => :build
   depends_on :macos
 
+  on_arm do
+    url "https://github.com/JieteXue/cdt/releases/download/v0.3.1/cdt_0.3.1_darwin_arm64.tar.gz"
+    sha256 "4ec65a6722de9b59cbc33865ce02abcbe726c66b607fe30c01c00f4e26ad532c"
+  end
+
+  on_intel do
+    url "https://github.com/JieteXue/cdt/releases/download/v0.3.1/cdt_0.3.1_darwin_amd64.tar.gz"
+    sha256 "4f6c57c84c5700300dbbc9445a2e0f77a4052d9bcaac09dcc794345d1194890c"
+  end
+
   def install
-    system "go", "build", *std_go_args(ldflags: "-s -w -X main.version=#{version}")
+    bin.install "cdt"
   end
 
   def caveats
@@ -23,6 +31,7 @@ class Cdt < Formula
   end
 
   test do
+    assert_match Hardware::CPU.arch.to_s, shell_output("/usr/bin/file #{bin}/cdt")
     assert_match "cdt #{version}", shell_output("#{bin}/cdt --version")
     project = testpath/"project with spaces"
     project.mkpath

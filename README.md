@@ -13,15 +13,17 @@ eval "$(command cdt init zsh)"
 ```
 
 Project: [JieteXue/cdt](https://github.com/JieteXue/cdt).
-Go is required to build the formula, not to run the installed program.
+Homebrew automatically downloads the precompiled Apple Silicon or Intel package.
+Installing cdt does not require Go and does not compile the project on your Mac.
 Installation never edits `.zshrc`.
 
 ## Maintaining releases
 
 1. Run the cdt unit tests, zsh PTY tests, and CI before tagging a release.
-2. Publish a new immutable version tag and GitHub release.
-3. Update `Formula/cdt.rb` with the source archive URL and SHA-256.
-4. Run `brew audit --strict JieteXue/tap/cdt`, install from source, and run
+2. Push a new immutable version tag. The cdt release workflow tests both native
+   architectures, then publishes binary archives and `checksums.txt`.
+3. Update both architecture URLs and SHA-256 values in `Formula/cdt.rb`.
+4. Run `brew audit --strict JieteXue/tap/cdt`, install the precompiled package, and run
    `brew test JieteXue/tap/cdt` before committing and pushing the formula.
 
 MIT licensed.
