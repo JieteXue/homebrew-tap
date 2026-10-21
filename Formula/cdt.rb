@@ -1,7 +1,6 @@
 class Cdt < Formula
   desc "Directory tags and native zsh navigation"
   homepage "https://github.com/JieteXue/cdt"
-  version "0.3.1"
   license "MIT"
 
   depends_on :macos
