@@ -6,13 +6,13 @@ class Cdt < Formula
   depends_on :macos
 
   on_arm do
-    url "https://github.com/JieteXue/cdt/releases/download/v0.3.1/cdt_0.3.1_darwin_arm64.tar.gz"
-    sha256 "4ec65a6722de9b59cbc33865ce02abcbe726c66b607fe30c01c00f4e26ad532c"
+    url "https://github.com/JieteXue/cdt/releases/download/v0.4.1/cdt_0.4.1_darwin_arm64.tar.gz"
+    sha256 "4ecbebfdc622f170ad2c9d3dcafd1f6a456c4b439fcfc9b6ee8e0637264deec8"
   end
 
   on_intel do
-    url "https://github.com/JieteXue/cdt/releases/download/v0.3.1/cdt_0.3.1_darwin_amd64.tar.gz"
-    sha256 "4f6c57c84c5700300dbbc9445a2e0f77a4052d9bcaac09dcc794345d1194890c"
+    url "https://github.com/JieteXue/cdt/releases/download/v0.4.1/cdt_0.4.1_darwin_amd64.tar.gz"
+    sha256 "c5910e11c9656167aa07178d4a3405eab76f5a757ad271ad3c71e3a678ccee2c"
   end
 
   def install
